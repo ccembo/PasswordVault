@@ -6,13 +6,15 @@ using System.Security.Cryptography;
 using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace PasswordVault.core;
 public class SecretsStore
 {
     private readonly byte[] key;
     public DataSet Data { get; private set; }
-
+        
     public SecretsStore(byte[] key)
     {
         if (key == null || key.Length != 32) // AES-256 requires a 32-byte key
@@ -27,6 +29,11 @@ public class SecretsStore
     {
         Data = dataSet;
         SaveToFile(encryptedFilePath);
+
+    }
+    public void CreateNewVault<T>(string encryptedFilePath, List<T> secrets)
+    {       
+        SaveToFile(encryptedFilePath, secrets);
 
     }
     public void LoadFromFile(string encryptedFilePath)
@@ -44,10 +51,39 @@ public class SecretsStore
         Data = CsvToDataSet(csvContent);
     }
 
+    public List<T> LoadFromFileToList<T>(string encryptedFilePath)
+    {
+        // Read the encrypted file
+        byte[] encryptedFileBytes = File.ReadAllBytes(encryptedFilePath);
+
+        // Decrypt the data
+        byte[] decryptedBytes = Decrypt(encryptedFileBytes);
+
+        // Convert bytes to string
+        string csvContent = Encoding.UTF8.GetString(decryptedBytes);
+
+        // Load CSV into DataSet
+        return CsvToList<T>(csvContent);
+    }
+
     public void SaveToFile(string encryptedFilePath)
     {
         // Convert DataSet to CSV string
         string csvContent = DataSetToCsv(Data);
+
+        // Convert string to bytes
+        byte[] plaintextBytes = Encoding.UTF8.GetBytes(csvContent);
+
+        // Encrypt the data
+        byte[] encryptedBytes = Encrypt(plaintextBytes);
+
+        // Write to file
+        File.WriteAllBytes(encryptedFilePath, encryptedBytes);
+    }
+    public void SaveToFile<T>(string encryptedFilePath, List<T> secrets)
+    {
+        // Convert DataSet to CSV string
+        string csvContent = ListToCsv<T>(secrets);
 
         // Convert string to bytes
         byte[] plaintextBytes = Encoding.UTF8.GetBytes(csvContent);
@@ -125,6 +161,21 @@ public class SecretsStore
         return dataSet;
     }
 
+    private List<T> CsvToList<T>(string csvContent)
+    {
+        CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture);
+        config.HasHeaderRecord = true;
+        config.HeaderValidated = null;
+
+        using (StringReader reader = new StringReader(csvContent))
+        using (var csv = new CsvReader(reader, config))
+        {
+            var dr = csv.GetRecords<T>();
+            return dr.ToList();
+        }
+        
+    }
+
     private string DataSetToCsv(DataSet dataSet)
     {
         StringBuilder csvContent = new StringBuilder();
@@ -152,6 +203,24 @@ public class SecretsStore
                     }
                     csv.NextRecord();
                 }
+            }
+        }
+
+        return csvContent.ToString();
+    }
+
+    private string ListToCsv<T>(List<T> secrets)
+    {
+        StringBuilder csvContent = new StringBuilder();
+
+        if (secrets != null)
+        {      
+            using (StringWriter writer = new StringWriter(csvContent))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                // Write rows
+                csv.WriteRecords(secrets);
+                
             }
         }
 
