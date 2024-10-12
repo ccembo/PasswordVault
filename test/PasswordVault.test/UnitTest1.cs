@@ -58,11 +58,11 @@ public class UnitTest1
 
     class Secret
     {
-        public int id { get; set; }
-        public string username { get; set; }
-        public string password { get; set; }
-        public string url { get; set; }
-        public string notes { get; set; }
+        public int Id { get; set; }
+        public required string Username { get; set; }
+        public required string Password { get; set; }
+        public  string? Url { get; set; }
+        public string? Notes { get; set; }
         
     }
 
@@ -80,8 +80,8 @@ public class UnitTest1
 
         List<Secret> passwords = new List<Secret>();
 
-        Secret p1 = new Secret {id=1, username = "admin", password = "password123", url = "http://example.com", notes = "This is a test password"};
-        Secret p2 = new Secret {id=2, username = "user", password = "letmein", url = "http://example.org", notes = "This is another test password"};
+        Secret p1 = new Secret {Id=1, Username = "admin", Password = "password123", Url = "http://example.com", Notes = "This is a test password"};
+        Secret p2 = new Secret {Id=2, Username = "user", Password = "letmein", Url = "http://example.org", Notes = "This is another test password"};
         
 
         passwords.Add(p1);
@@ -105,9 +105,9 @@ public class UnitTest1
         // Save the DataSet back to an encrypted file
         //encryptedCsvDataSet.SaveToFile("encryptedData.csv");
 
-        string p1_txt = passwords[0].password ?? string.Empty;
+        string p1_txt = passwords[0].Password ?? string.Empty;
 
-        string p2_txt = passwords_restored[0].password ?? string.Empty;
+        string p2_txt = passwords_restored[0].Password ?? string.Empty;
 
 
         Assert.Equal(p1_txt,p2_txt);
