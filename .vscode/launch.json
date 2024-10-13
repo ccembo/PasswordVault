@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "C#: PasswordVault.WebUIServer Debug",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}\\src\\PasswordVault.WebUIServer\\PasswordVault.WebUIServer.csproj",
+            "preLaunchTask": "dotnet: build PasswordVault.WebUIServer",
+    
+        },
+        {
+            "name": "C#: PasswordVault.test",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}\\test\\PasswordVault.test\\PasswordVault.test.csproj",
+            "launchConfigurationId": "TargetFramework=;PasswordVault.test"
+        }
+    ]
+}

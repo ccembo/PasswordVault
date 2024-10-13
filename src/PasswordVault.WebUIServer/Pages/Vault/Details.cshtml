@@ -1,0 +1,43 @@
+@page
+@model pv.Pages_Vault.DetailsModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Vault</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Vault.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Vault.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Vault.Path)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Vault.Path)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Vault.noce)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Vault.noce)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Vault.tag)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Vault.tag)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-page="./Edit" asp-route-id="@Model.Vault.Id">Edit</a> |
+    <a asp-page="./Index">Back to List</a>
+</div>

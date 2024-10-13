@@ -1,4 +1,4 @@
-namespace PasswordVault.Model;
+namespace PasswordVault.core.Model;
 public class Vault
 {
     public int Id { get; set; }

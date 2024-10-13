@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 
 namespace PasswordVault.test;
 
-public class UnitTest1
+public class SecretsStorageTest
 {
     [Fact]
     public void SecretStoreWithDataTables()

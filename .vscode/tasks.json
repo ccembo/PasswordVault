@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "dotnet",
+			"task": "build ${workspaceFolder}\\src\\PasswordVault.WebUIServer\\PasswordVault.WebUIServer.csproj",
+			"file": "${workspaceFolder}\\src\\PasswordVault.WebUIServer\\PasswordVault.WebUIServer.csproj",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "dotnet: build PasswordVault.WebUIServer"
+		}
+	]
+}
