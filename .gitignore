@@ -40,3 +40,8 @@ msbuild.wrn
 
 # Visual Studio 2015 
 .vs/
+src/PasswordVault.WebUIServer/PasswordVaultDB.db
+src/PasswordVault.WebUIServer/PasswordVaultDB.db-shm
+src/PasswordVault.WebUIServer/PasswordVaultDB.db-wal
+src/PasswordVault.WebUIServer/Developers.csv
+

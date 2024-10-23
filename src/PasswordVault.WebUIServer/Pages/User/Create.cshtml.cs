@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using PVDB.Data;
+using PasswordVault.core;
 using PasswordVault.core.Model;
 
 namespace pv.Pages_User
@@ -34,6 +35,9 @@ namespace pv.Pages_User
             {
                 return Page();
             }
+
+            //Hash the password first
+            user.Password = CryptoUtil.ComputeSha256Hash(user.Password);
 
             _context.User.Add(user);
             await _context.SaveChangesAsync();
