@@ -16,6 +16,8 @@ public class PrivacyModel : PageModel
 
     public void OnGet()
     {
+        User.IsInRole("Admin");
+        
     }
 }
 

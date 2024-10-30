@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using PVDB.Data;
 using PasswordVault.core.Model;
 
-namespace pv.Pages_VaultSecrets
+namespace PasswordVault.WebUIServer.Pages_User_Access
 {
     public class DetailsModel : PageModel
     {
@@ -19,7 +19,7 @@ namespace pv.Pages_VaultSecrets
             _context = context;
         }
 
-        public Secret Secret { get; set; } = default!;
+        public UserVault UserVault { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -28,14 +28,14 @@ namespace pv.Pages_VaultSecrets
                 return NotFound();
             }
 
-            var secret = await _context.Secret.FirstOrDefaultAsync(m => m.Id == id);
-            if (secret == null)
+            var uservault = await _context.UserVault.FirstOrDefaultAsync(m => m.UserId == id);
+            if (uservault == null)
             {
                 return NotFound();
             }
             else
             {
-                Secret = secret;
+                UserVault = uservault;
             }
             return Page();
         }

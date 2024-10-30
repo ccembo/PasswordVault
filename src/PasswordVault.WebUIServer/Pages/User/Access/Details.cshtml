@@ -1,0 +1,43 @@
+@page
+@model PasswordVault.WebUIServer.Pages_User_Access.DetailsModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>UserVault</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UserVault.Role)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UserVault.Role)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UserVault.VaultKey)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UserVault.VaultKey)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UserVault.User)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UserVault.User.Email)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UserVault.Vault)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UserVault.Vault.Name)
+        </dd>
+    </dl>
+</div>
+<div>
+    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+    <a asp-page="./Index">Back to List</a>
+</div>

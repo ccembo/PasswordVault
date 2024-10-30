@@ -112,4 +112,61 @@ public class SecretsStorageTest
 
         Assert.Equal(p1_txt,p2_txt);
     }
+
+
+       [Fact]
+    public void SecretStoreWithListOFObjectsBase46Key()
+    {
+        //Generate a 32-byte key
+        byte[] key = new byte[32]; // 256 bits
+        RandomNumberGenerator.Fill(key);
+        //key = Encoding.UTF8.GetBytes("C4rl0sS3cr3tK3y1234567890ABCDEFG");
+
+        //Convert the key to Base64  
+        string keyBase64 = Convert.ToBase64String(key);
+
+        // Ensure the key is 32 bytes
+        if (key.Length != 32)
+        {
+            throw new Exception("The encryption key must be 32 bytes long.");
+        }
+
+        List<Secret> passwords = new List<Secret>();
+
+        Secret p1 = new Secret {Id=1, Username = "admin", Password = "password123", Url = "http://example.com", Notes = "This is a test password"};
+        Secret p2 = new Secret {Id=2, Username = "user", Password = "letmein", Url = "http://example.org", Notes = "This is another test password"};
+        
+
+        passwords.Add(p1);
+        passwords.Add(p2);
+
+        SecretsStore encryptedCsvDataSet = new SecretsStore(key);
+
+        encryptedCsvDataSet.CreateNewVault("encryptedList.csv", passwords);
+
+        // Load data from encrypted file
+        List<Secret> passwords_restored;
+        
+        //Restore the key from a Base64 string
+        byte[] keyFromBase64 = Convert.FromBase64String(keyBase64);
+
+        SecretsStore encryptedCsvDataSet_new = new SecretsStore(keyFromBase64);
+        passwords_restored = encryptedCsvDataSet_new.LoadFromFileToList<Secret>("encryptedList.csv");
+
+        // Access the DataSet
+        
+
+        // Modify the DataSet as needed
+        // ...
+
+        // Save the DataSet back to an encrypted file
+        //encryptedCsvDataSet.SaveToFile("encryptedData.csv");
+
+        string p1_txt = passwords[0].Password ?? string.Empty;
+
+        string p2_txt = passwords_restored[0].Password ?? string.Empty;
+
+
+        Assert.Equal(p1_txt,p2_txt);
+    }
 }

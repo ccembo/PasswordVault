@@ -1,0 +1,47 @@
+﻿@page
+@model UserAccessModel
+@{
+    ViewData["Title"] = "User access";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Hello @User.Identity?.Name!</h1>
+</div class="form-group">>
+<form method="post">
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserVault[0].UserId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserVault[0].Vault.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.UserVault) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserId)
+            </td>
+            <td>
+               
+               <select asp-for="@item.Role" class="form-control"
+                        asp-items="@Model.RoleSelectListItems">
+                         
+                </select> 
+            </td>
+            <td>
+                <input type="hidden" asp-for="@item.UserId" />
+                <input type="hidden" asp-for="@item.VaultId" />
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<div class="form-group">
+    <input type="submit" value="Save" class="btn btn-primary" />
+</div>
+</form>

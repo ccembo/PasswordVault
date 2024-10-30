@@ -6,72 +6,136 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using PVDB.Data;
 using PasswordVault.core.Model;
+using System.Text;
+using PasswordVault.core;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using PasswordVault.WebUIServer.Configuration;
 
-namespace pv.Pages_User
+namespace pv.Pages_UserVaultSecrets
 {
+    [Authorize(AuthenticationSchemes = "PVScheme", Roles = "User,Admin, Read-only User")]
     public class EditModel : PageModel
     {
         private readonly PVDB.Data.PVDBContext _context;
+        private readonly ServerConfiguration _myConfig;
 
-        public EditModel(PVDB.Data.PVDBContext context)
+        public EditModel(PVDB.Data.PVDBContext context, IOptions<ServerConfiguration> config)
         {
             _context = context;
+            _myConfig = config.Value;
+
         }
 
         [BindProperty]
-        public User user { get; set; } = default!;
+        public Secret Secret { get; set; } = default!;
+        public Vault Vault { get;set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public async Task<IActionResult> OnGetAsync(int? secretid, int? vaultid)
         {
-            if (id == null)
+            //Find the Vault first
+            if (vaultid == null)
             {
                 return NotFound();
             }
 
-            var user =  await _context.User.FirstOrDefaultAsync(m => m.Id == id);
-            if (user == null)
+            var vault =  await _context.Vault.FirstOrDefaultAsync(m => m.Id == vaultid);
+            if (vault == null)
             {
                 return NotFound();
             }
-            this.user = user;
+
+            // SecretID
+            if (secretid == null)
+            {
+                return NotFound();
+            }
+
+            //Get User Id
+            User userId = _context.User.FirstOrDefault(u => u.Name == this.HttpContext.User.Identity.Name);
+
+            UserVault userVault = _context.UserVault.FirstOrDefault(uv => uv.UserId == userId.Id && uv.VaultId == vault.Id);
+
+            byte[] key = Convert.FromBase64String(userVault.VaultKey);
+
+            // Ensure the key is 32 bytes
+            if (key.Length != 32)
+            {
+                throw new Exception("The encryption key must be 32 bytes long.");
+            }
+
+            string vaultPath = _myConfig.VaultStoragePath + "\\" + vault.Path;
+
+            // Create a new instance of the SecretsStore class
+            SecretsStore encryptedCsvDataSet = new SecretsStore(key);
+
+            // Load the encrypted data from the file        
+            var secrets = encryptedCsvDataSet.LoadFromFileToList<Secret>(vaultPath);
+
+            Secret = secrets.FirstOrDefault(s => s.Id == secretid);
+            Vault = vault;
+            
             return Page();
         }
 
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more information, see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(int? secretid, int? vaultid)
         {
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            _context.Attach(User).State = EntityState.Modified;
-
-            try
+            //Find the Vault first
+            if (vaultid == null)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(user.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound();
             }
 
-            return RedirectToPage("./Index");
+            var vault =  await _context.Vault.FirstOrDefaultAsync(m => m.Id == vaultid);
+            if (vault == null)
+            {
+                return NotFound();
+            }
+
+            // SecretID
+            if (secretid == null)
+            {
+                return NotFound();
+            }
+
+            //Get User Id
+            User userId = _context.User.FirstOrDefault(u => u.Name == this.HttpContext.User.Identity.Name);
+
+            UserVault userVault = _context.UserVault.FirstOrDefault(uv => uv.UserId == userId.Id && uv.VaultId == vault.Id);
+
+            byte[] key = Convert.FromBase64String(userVault.VaultKey);
+
+            // Ensure the key is 32 bytes
+            if (key.Length != 32)
+            {
+                throw new Exception("The encryption key must be 32 bytes long.");
+            }
+
+            string vaultPath = _myConfig.VaultStoragePath + "\\" + vault.Path;
+
+            // Create a new instance of the SecretsStore class
+            SecretsStore encryptedCsvDataSet = new SecretsStore(key);
+
+            // Load the encrypted data from the file        
+            var secrets = encryptedCsvDataSet.LoadFromFileToList<Secret>(vaultPath);
+
+            var secret_from_file = secrets.FirstOrDefault(s => s.Id == secretid);
+
+            secrets.Remove(secret_from_file);
+            secrets.Add(Secret);
+
+            encryptedCsvDataSet.SaveToFile<Secret>(vaultPath, secrets );
+
+            return RedirectToPage("./Secrets", new { id = vaultid });
         }
 
-        private bool UserExists(int id)
-        {
-            return _context.User.Any(e => e.Id == id);
-        }
     }
 }

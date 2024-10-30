@@ -7,4 +7,6 @@ public class User
     public required string Password { get; set; }
     public required string Role { get; set; }
     public string? Token { get; set; }
+
+    public ICollection<UserVault>? VaultsAllocated { get; set; }
 }

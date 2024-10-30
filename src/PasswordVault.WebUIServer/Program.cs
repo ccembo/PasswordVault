@@ -3,11 +3,16 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PVDB.Data;
+using PasswordVault.WebUIServer.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+// Access configuration
+var config = builder.Configuration.GetSection("PVServerConfig");
+builder.Services.Configure<ServerConfiguration>(config);
 
 //Data
 builder.Services.AddDbContext<PVDBContext>(options =>

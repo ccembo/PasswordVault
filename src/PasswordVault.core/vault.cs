@@ -6,5 +6,6 @@ public class Vault
     public required string Path { get; set; }
     public string? noce { get; set; }
     public string? tag { get; set; }
+    public ICollection<UserVault>? VaultsAllocated { get; set; }
 
 }

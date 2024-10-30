@@ -4,47 +4,55 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using PasswordVault.core.Model;
 using System.Text;
 using PasswordVault.core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using PasswordVault.WebUIServer.Configuration;
+using Microsoft.EntityFrameworkCore;
 
-namespace pv.Pages_UserVault
+namespace pv.Pages_UserVaultSecrets
 {
-    [Authorize(AuthenticationSchemes = "PVScheme", Roles = "User,Admin, Read-only User")]
-    public class DetailsModel : PageModel
+    [Authorize(AuthenticationSchemes = "PVScheme", Roles = "User,Admin")]
+    public class CreateModel : PageModel
     {
         private readonly PVDB.Data.PVDBContext _context;
         private readonly ServerConfiguration _myConfig;
 
-        public DetailsModel(PVDB.Data.PVDBContext context, IOptions<ServerConfiguration> config)
+        public CreateModel(PVDB.Data.PVDBContext context,IOptions<ServerConfiguration> config)
         {
             _context = context;
             _myConfig = config.Value;
         }
 
+        public IActionResult OnGet(int? id)
+        {
+            return Page();
+        }
+
+        [BindProperty]
         public Secret Secret { get; set; } = default!;
         public Vault Vault { get;set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(int? secretid, int? vaultid)
+        // For more information, see https://aka.ms/RazorPagesCRUD.
+        public async Task<IActionResult> OnPostAsync(int? id)
         {
+            
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
             //Find the Vault first
-            if (vaultid == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var vault =  await _context.Vault.FirstOrDefaultAsync(m => m.Id == vaultid);
+            var vault =  await _context.Vault.FirstOrDefaultAsync(m => m.Id == id);
             if (vault == null)
-            {
-                return NotFound();
-            }
-
-            // SecretID
-            if (secretid == null)
             {
                 return NotFound();
             }
@@ -70,11 +78,15 @@ namespace pv.Pages_UserVault
             // Load the encrypted data from the file        
             var secrets = encryptedCsvDataSet.LoadFromFileToList<Secret>(vaultPath);
 
-            Secret = secrets.FirstOrDefault(s => s.Id == secretid);
+            int max_id = secrets.Max(s => s.Id);
 
-            Vault = vault;
+            Secret.Id = max_id + 1;
 
-            return Page();
+            secrets.Add(Secret);
+
+            encryptedCsvDataSet.SaveToFile<Secret>(vaultPath, secrets );
+
+            return RedirectToPage("./Secrets", new { id = id });
         }
-    }   
+    }
 }
