@@ -8,9 +8,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using PVDB.Data;
 using PasswordVault.core;
 using PasswordVault.core.Model;
+using Microsoft.AspNetCore.Authorization;
 
 namespace pv.Pages_User
-{
+{[Authorize(AuthenticationSchemes = "PVScheme", Roles = "Admin")]
     public class CreateModel : PageModel
     {
         private readonly PVDB.Data.PVDBContext _context;

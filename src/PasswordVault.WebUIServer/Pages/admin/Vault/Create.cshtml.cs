@@ -11,9 +11,10 @@ using PasswordVault.core;
 using PasswordVault.core.Model;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace pv.Pages_Vault
-{
+{[Authorize(AuthenticationSchemes = "PVScheme", Roles = "Admin")]
     public class CreateModel : PageModel
     {
         private readonly PVDB.Data.PVDBContext _context;

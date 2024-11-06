@@ -4,11 +4,19 @@
     ViewData["Title"] = "User Home page";
 }
 
+
 <div class="text-center">
     <h1 class="display-4">Hello @User.Identity?.Name!</h1>
-    <p>TODO: Create links for functionality.</p>
-</div>
-<table class="table">
+
+@if (Model.isKeyPresent)
+{
+    @if (Model.User.IsInRole("Admin") || Model.User.IsInRole("User"))
+    {
+        <p>Create a new vault <a asp-page=".\Create"> here</a>.</p>
+    }
+
+    <p>Key is present</p>
+    <table class="table">
     <thead>
         <tr>
             <th>
@@ -42,13 +50,30 @@
                 @Html.DisplayFor(modelItem => item.tag)
             </td>
             <td>
-                <a asp-page="./Secrets" asp-route-id="@item.Id">Secrets</a> |
-                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a> |
-                <a asp-page="./UserAccess" asp-route-id="@item.Id">User Access</a> |
+                <div id="controls" >
+                    <a asp-page="./Secrets" asp-route-id="@item.Id">Secrets</a> |
+                    <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a> |
+                    <a asp-page="./UserAccess" asp-route-id="@item.Id">User Access</a> |
+                </div>
             </td>
         </tr>
 }
     </tbody>
 </table>
+}
+else
+{
+    <p>Key is not present</p>
+    <div id="keyexchange">
+        <label for="key">Chanllenge:</label><input type="text" id="key" />
+        <button id="send">Request</button>
+        <img id="loading" src="/Loading_icon.gif" hidden="true" />
+    </div>
+}
+      
+</div>
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/keyexc.js"></script>

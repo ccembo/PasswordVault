@@ -1,14 +1,22 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Session;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PVDB.Data;
 using PasswordVault.WebUIServer.Configuration;
+using SignalRKeyExchange.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+//KeyExchange requirement, Temporal Store
+builder.Services.AddSingleton<IKeyRepository, keyRepository>();
+
+//KeyExchange requirement 
+builder.Services.AddSignalR();
 
 // Access configuration
 var config = builder.Configuration.GetSection("PVServerConfig");
@@ -40,6 +48,16 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
 });
 
+//Sessions
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromSeconds(300);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -58,6 +76,10 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+//Sessions
+app.UseSession();
+
 app.MapRazorPages();
+app.MapHub<KeyExchangeHub>("/KeyExchangeHub");
 
 app.Run();

@@ -21,6 +21,7 @@ public class UserAccessModel : PageModel
     private readonly PVDB.Data.PVDBContext _context;
     public IList<Vault> Vault { get;set; } = default!;
     public IList<Role> Roles { get;set; } = default!;
+    public IList<PasswordVault.core.Model.User> UsersAvalable { get;set; } = default!;
 
     public IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> RoleSelectListItems { get; set; }
 
@@ -50,10 +51,12 @@ public class UserAccessModel : PageModel
             return;
         }
 
-        UserVault = await _context.UserVault.Where(uv => uv.UserId == userId.Id && uv.VaultId == id).ToListAsync();
+        UserVault = await _context.UserVault.Where(uv => uv.VaultId == id).ToListAsync();
 
         Roles = await _context.Role.ToListAsync();
         RoleSelectListItems = Roles.Select(r => new SelectListItem(r.Name, r.Name));
+
+        UsersAvalable = await _context.User.ToListAsync();
     }
 
     public async Task<IActionResult> OnPostAsync(int? id)
@@ -74,5 +77,76 @@ public class UserAccessModel : PageModel
         //UserVault = uservault;
         
         return RedirectToPage("./Index");
+    }
+
+    public async Task<IActionResult> OnPostAddUserAsync(int? id)
+    {
+        if (!ModelState.IsValid)
+        {
+            return Page();
+        }
+        int vaultId = (int)id;
+
+        var selectedUserId = Request.Form["selectedUserId"];
+        if (string.IsNullOrEmpty(selectedUserId))
+        {
+            return BadRequest("Selected user ID is required.");
+        }
+        var userId = int.Parse(selectedUserId);
+        var roleId = (string)Request.Form["userRole"];
+
+        //Get User Id and the key
+        PasswordVault.core.Model.User user = _context.User.FirstOrDefault(u => u.Name == this.HttpContext.User.Identity.Name);
+
+        UserVault userVault = _context.UserVault.FirstOrDefault(uv => uv.UserId == user.Id && uv.VaultId == vaultId);
+
+        byte[] key = Convert.FromBase64String(userVault.VaultKey);
+
+        UserVault newUserVault = new UserVault
+        {
+            UserId = userId,
+            VaultId = vaultId,
+            Role = roleId,
+            VaultKey = userVault.VaultKey
+        };
+
+        _context.UserVault.Add(newUserVault);
+        await _context.SaveChangesAsync();
+
+        //UserVault = uservault;
+
+        return RedirectToPage("./UserAccess", new { id = vaultId });
+    }
+
+
+     public async Task<IActionResult> OnPostDeleteUserAsync(int? id)
+    {
+        if (!ModelState.IsValid)
+        {
+            return Page();
+        }
+        int vaultId = (int)id;
+
+        var selectedUserId = Request.Form["userIdtoDelete"];
+        if (string.IsNullOrEmpty(selectedUserId))
+        {
+            return BadRequest("Selected user ID is required.");
+        }
+        var userId = int.Parse(selectedUserId);
+        var roleId = (string)Request.Form["userRole"];
+
+        //Get User Id and the key
+        PasswordVault.core.Model.User user = _context.User.FirstOrDefault(u => u.Name == this.HttpContext.User.Identity.Name);
+
+        UserVault userVault = _context.UserVault.FirstOrDefault(uv => uv.UserId == userId && uv.VaultId == vaultId);
+
+        //Remove the user from userVault
+        _context.UserVault.Remove(userVault);
+
+        await _context.SaveChangesAsync();
+
+        //UserVault = uservault;
+
+        return RedirectToPage("./UserAccess", new { id = vaultId });
     }
 }

@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using PVDB.Data;
 using PasswordVault.core.Model;
+using Microsoft.AspNetCore.Authorization;
 
 namespace pv.Pages_User
-{
+{[Authorize(AuthenticationSchemes = "PVScheme", Roles = "Admin")]
     public class IndexModel : PageModel
     {
         private readonly PVDB.Data.PVDBContext _context;

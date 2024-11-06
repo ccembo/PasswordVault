@@ -6,42 +6,102 @@
 
 <div class="text-center">
     <h1 class="display-4">Hello @User.Identity?.Name!</h1>
-</div class="form-group">>
-<form method="post">
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.UserVault[0].UserId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserVault[0].Vault.Name)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.UserVault) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserId)
-            </td>
-            <td>
-               
-               <select asp-for="@item.Role" class="form-control"
-                        asp-items="@Model.RoleSelectListItems">
-                         
-                </select> 
-            </td>
-            <td>
-                <input type="hidden" asp-for="@item.UserId" />
-                <input type="hidden" asp-for="@item.VaultId" />
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+</div class="form-group">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.UserVault[0].UserId)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.UserVault[0].Vault.Name)
+                            </th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                @foreach (var item in Model.UserVault) {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.UserId)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.User.Name)
+                            </td>
+                            <td>                           
+                                <select asp-for="@item.Role" class="form-control"
+                                    asp-items="@Model.RoleSelectListItems">
+                                </select> 
+                            </td>
+                            <td>
+                                <form method="post" asp-page-handler="DeleteUser"  asp-route-id="@Model.UserVault[0].VaultId">
+                                    <input type="submit" value="Delete" class="btn btn-primary" >
+                                    <input type="hidden" asp-for="@item.UserId" name="userIdtoDelete" />
+                                    <input type="hidden" asp-for="@item.VaultId" />
+                                </form>
+                            </td>
+                        </tr>
+                }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <form method="post" asp-page-handler="AddUser"  asp-route-id="@Model.UserVault[0].VaultId">
+                    <label for="role_selector" class="control-label">Add using the role:</label>
+                    <select id="role_selector" class="form-control" name="userRole"
+                                            asp-items="@Model.RoleSelectListItems">
+                                            
+                    </select>  
+                    <input type="submit" value="Add" class="btn btn-primary" />
+                    <input type="hidden" id="selectedUserId" name="selectedUserId" />
+                </form>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <table class="table_users_available">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.UsersAvalable[0].Id)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.UsersAvalable[0].Name)
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                @foreach (var item in Model.UsersAvalable) {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Id)
+                            </td>
+                            <td>
+                                 @Html.DisplayFor(modelItem => item.Name) 
+                            </td>
+                            <td>
+                                <input type="hidden" asp-for="@item.Id" />
+                                <button type="button" class="btn btn-link" onclick="selectUser('@item.Id', '@item.Name')">Select</button>
+                                <script>
+                                    function selectUser(userId, userName) {
+                                        document.getElementById('selectedUserId').value = userId;
+                                    }
+                                </script>
+
+                            </td>
+                        </tr>
+                }
+                    </tbody>
+                </table>
+        </div>
+    </div>
+
 <div class="form-group">
     <input type="submit" value="Save" class="btn btn-primary" />
 </div>
-</form>

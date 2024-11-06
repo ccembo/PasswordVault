@@ -8,9 +8,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PVDB.Data;
 using PasswordVault.core.Model;
+using Microsoft.AspNetCore.Authorization;
 
 namespace pv.Pages_Vault
-{
+{[Authorize(AuthenticationSchemes = "PVScheme", Roles = "Admin")]
     public class EditModel : PageModel
     {
         private readonly PVDB.Data.PVDBContext _context;

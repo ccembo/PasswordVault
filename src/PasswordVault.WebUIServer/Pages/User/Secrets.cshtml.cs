@@ -42,9 +42,18 @@ namespace pv.Pages_UserVaultSecrets
             {
                 return NotFound();
             }
-
+            //Get user's identity
+            var userName = HttpContext.User.Identity?.Name;
+            if (userName == null)
+            {
+                return NotFound();
+            }
              //Get User Id
-            User userId = _context.User.FirstOrDefault(u => u.Name == this.HttpContext.User.Identity.Name);
+            User userId = _context.User.FirstOrDefault(u => u.Name == userName);
+            if (userId == null)
+            {
+                return NotFound();
+            }
 
             UserVault userVault = _context.UserVault.FirstOrDefault(uv => uv.UserId == userId.Id && uv.VaultId == vault.Id);
 
