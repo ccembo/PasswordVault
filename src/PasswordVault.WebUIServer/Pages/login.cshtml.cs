@@ -29,15 +29,12 @@ public class LoginModel : PageModel
     }
     public async Task<IActionResult> OnPostAsync()
     {
-        // if (!ModelState.IsValid)
-        // {
-        //     return Page();
-        // }
         _logger.LogInformation("User: {0}", user);
        
         var user_in_db = await _context.User.FirstAsync(m => m.Name == user.Name);
         if (user_in_db == null)
         {
+            _logger.LogInformation("User not found");
             return NotFound();
         }
 
@@ -46,6 +43,7 @@ public class LoginModel : PageModel
         
         if (user_in_db.Password != user.Password)
         {
+            _logger.LogWarning("Password mismatch for user {0}", user.Name);
             return Page();
         }
 
@@ -53,6 +51,7 @@ public class LoginModel : PageModel
         var role = _context.Role.FirstOrDefault(r => r.Name == user_in_db.Role);
         if (role == null)
         {
+            _logger.LogWarning("User role is invalid for user {0}", user.Name);
             // Handle case where the user's role is missing or invalid
             ErrorMessage = "User role is invalid!";
             return Page();

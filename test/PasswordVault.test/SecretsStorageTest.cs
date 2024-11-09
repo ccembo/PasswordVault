@@ -119,8 +119,14 @@ public class SecretsStorageTest
     {
         //Generate a 32-byte key
         byte[] key = new byte[32]; // 256 bits
-        RandomNumberGenerator.Fill(key);
-        //key = Encoding.UTF8.GetBytes("C4rl0sS3cr3tK3y1234567890ABCDEFG");
+        
+        string passcode = "Password123456";
+        
+        using (SHA256 sha256Hash = SHA256.Create())
+        {
+            key = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(passcode));
+        }
+        
 
         //Convert the key to Base64  
         string keyBase64 = Convert.ToBase64String(key);
@@ -142,7 +148,7 @@ public class SecretsStorageTest
 
         SecretsStore encryptedCsvDataSet = new SecretsStore(key);
 
-        encryptedCsvDataSet.CreateNewVault("encryptedList.csv", passwords);
+        encryptedCsvDataSet.CreateNewVault("encryptedList2.csv", passwords);
 
         // Load data from encrypted file
         List<Secret> passwords_restored;
@@ -151,7 +157,7 @@ public class SecretsStorageTest
         byte[] keyFromBase64 = Convert.FromBase64String(keyBase64);
 
         SecretsStore encryptedCsvDataSet_new = new SecretsStore(keyFromBase64);
-        passwords_restored = encryptedCsvDataSet_new.LoadFromFileToList<Secret>("encryptedList.csv");
+        passwords_restored = encryptedCsvDataSet_new.LoadFromFileToList<Secret>("encryptedList2.csv");
 
         // Access the DataSet
         
