@@ -48,3 +48,5 @@ VaultStore/
 *.db-wal
 *.csv
 
+#RockYou.txt
+rockyou.txt
